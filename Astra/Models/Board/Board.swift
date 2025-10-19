@@ -17,20 +17,65 @@ struct Board: Identifiable, Codable {
 
     static let placeholder = Board(
         id: BoardID(),
-        title: "Astra Alpha Board",
-        nodes: [
-            BoardNode.sampleText(title: "Project North Star",
-                                 body: "Define the core vision for Astra's collaborative intelligence canvas.",
-                                 position: CanvasPoint(x: 120, y: 120)),
-            BoardNode.sampleText(title: "User Research",
-                                 body: "Interview 5 facilitators and synthesize requirements.",
-                                 position: CanvasPoint(x: 320, y: 180)),
-            BoardNode.sampleShape(title: "Sprint",
-                                  body: "Design sprint scheduled for next Tuesday.",
-                                  position: CanvasPoint(x: 220, y: 360))
-        ],
+        title: "",
+        nodes: [],
         conversation: Conversation.sample,
         thoughts: Thought.sampleList,
         personality: PersonalityProfile.placeholder
     )
+
+    func removingLegacySeedContent() -> Board {
+        var sanitized = self
+
+        if sanitized.title == LegacySeedContent.boardTitle {
+            sanitized.title = ""
+        }
+
+        sanitized.nodes.removeAll { LegacySeedContent.nodeTitles.contains($0.title) }
+
+        if sanitized.conversation.topic == LegacySeedContent.conversationTopic,
+           sanitized.conversation.containsLegacySeedMessages {
+            sanitized.conversation.topic = ""
+            sanitized.conversation.messages.removeAll()
+        }
+
+        sanitized.thoughts.removeAll { thought in
+            LegacySeedContent.thoughts.contains { $0.title == thought.title && $0.detail == thought.detail }
+        }
+
+        return sanitized
+    }
+}
+
+private enum LegacySeedContent {
+    static let boardTitle = "Astra Alpha Board"
+    static let nodeTitles: Set<String> = [
+        "Project North Star",
+        "User Research",
+        "Sprint"
+    ]
+    static let conversationTopic = "Kickoff"
+    static let conversationMessages: [(MessageRole, String)] = [
+        (.system, "Welcome to Astra's collaborative canvas."),
+        (.user, "Capture product vision and research tasks."),
+        (.assistant, "Drafted starter nodes with priorities.")
+    ]
+    static let thoughts: [(title: String, detail: String)] = [
+        (title: "Align stakeholders",
+         detail: "Schedule a working session with design and research."),
+        (title: "AI Assistance",
+         detail: "Surface contextual prompts near relevant nodes.")
+    ]
+}
+
+private extension Conversation {
+    var containsLegacySeedMessages: Bool {
+        guard messages.count == LegacySeedContent.conversationMessages.count else {
+            return false
+        }
+
+        return zip(messages, LegacySeedContent.conversationMessages).allSatisfy { message, legacy in
+            message.role == legacy.0 && message.text == legacy.1
+        }
+    }
 }

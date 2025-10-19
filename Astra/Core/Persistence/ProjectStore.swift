@@ -16,7 +16,10 @@ final class ProjectStore: ObservableObject {
 
     init(localStore: LocalJSONStore<Board>) {
         self.localStore = localStore
-        self.board = localStore.load() ?? Board.placeholder
+        let initialBoard = localStore.load() ?? Board.placeholder
+        let sanitizedBoard = initialBoard.removingLegacySeedContent()
+        self.board = sanitizedBoard
+        localStore.save(sanitizedBoard)
     }
 
     func updateBoard(_ transform: (inout Board) -> Void) {

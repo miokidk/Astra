@@ -25,6 +25,7 @@ struct ZoomableCanvas<Content: View>: View {
     @State private var didPanWithoutMouseButtons = false
     @State private var isTrackpadZooming = false
     @State private var trackpadBaseScale: CGFloat = 1.0
+    @State private var trackpadAccumulatedMagnification: CGFloat = 0
 
     private let content: () -> Content
 
@@ -97,16 +98,19 @@ struct ZoomableCanvas<Content: View>: View {
     private func beginTrackpadZoom() {
         trackpadBaseScale = scale
         isTrackpadZooming = true
+        trackpadAccumulatedMagnification = 0
     }
 
     private func updateTrackpadZoom(delta: CGFloat) {
         guard isTrackpadZooming else { return }
-        let adjusted = 1.0 + delta
+        trackpadAccumulatedMagnification += delta
+        let adjusted = max(0.1, 1.0 + trackpadAccumulatedMagnification)
         scale = clamp(trackpadBaseScale * adjusted)
     }
 
     private func endTrackpadZoom() {
         isTrackpadZooming = false
+        trackpadAccumulatedMagnification = 0
     }
 
     private func clamp(_ value: CGFloat) -> CGFloat {

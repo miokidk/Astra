@@ -12,19 +12,30 @@ final class SettingsViewModel: ObservableObject {
     @Published var config: ModelConfig
 
     private let engine: AstraEngine?
+    private static let supportedModels = ["gpt-5-mini", "gpt-5"]
+
+    var availableModels: [String] { Self.supportedModels }
 
     init(modelConfig: ModelConfig, engine: AstraEngine? = nil) {
-        self.config = modelConfig
+        var sanitizedConfig = modelConfig
+
+        if let fallback = Self.supportedModels.first,
+           !Self.supportedModels.contains(sanitizedConfig.modelName) {
+            sanitizedConfig.modelName = fallback
+        }
+
+        self.config = sanitizedConfig
         self.engine = engine
+
+        if sanitizedConfig != modelConfig {
+            engine?.updateConfiguration(sanitizedConfig)
+        }
     }
 
-    func updateModel(name: String) {
+    func selectModel(_ name: String) {
+        guard availableModels.contains(name) else { return }
+        guard config.modelName != name else { return }
         config.modelName = name
-        engine?.updateConfiguration(config)
-    }
-
-    func updateTemperature(_ value: Double) {
-        config.temperature = value
         engine?.updateConfiguration(config)
     }
 }

@@ -26,12 +26,5 @@ struct Thought: Identifiable, Codable {
         self.createdAt = createdAt
     }
 
-    static let sampleList: [Thought] = [
-        Thought(title: "Align stakeholders",
-                detail: "Schedule a working session with design and research.",
-                relatedNodeID: nil),
-        Thought(title: "AI Assistance",
-                detail: "Surface contextual prompts near relevant nodes.",
-                relatedNodeID: nil)
-    ]
+    static let sampleList: [Thought] = []
 }

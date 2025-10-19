@@ -14,11 +14,7 @@ struct Conversation: Identifiable, Codable {
 
     static let sample = Conversation(
         id: ConversationID(),
-        topic: "Kickoff",
-        messages: [
-            Message(role: .system, text: "Welcome to Astra's collaborative canvas."),
-            Message(role: .user, text: "Capture product vision and research tasks."),
-            Message(role: .assistant, text: "Drafted starter nodes with priorities.")
-        ]
+        topic: "",
+        messages: []
     )
 }

@@ -109,17 +109,11 @@ struct AstraBoardApp: View {
                     isShowingSettings = true
                 }
             }
-            ToolbarItem(placement: .navigationBarTrailing) {
-                PaletteView(viewModel: paletteViewModel)
-            }
 #else
             ToolbarItem(placement: .automatic) {
                 Button("Settings") {
                     isShowingSettings = true
                 }
-            }
-            ToolbarItem(placement: .automatic) {
-                PaletteView(viewModel: paletteViewModel)
             }
 #endif
         }
@@ -189,23 +183,15 @@ private struct SettingsSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Model") {
-                    TextField("Model name", text: Binding(
-                        get: { viewModel.config.modelName },
-                        set: { viewModel.updateModel(name: $0) }
-                    ))
-                }
-
-                Section("Controls") {
-                    HStack {
-                        Text("Temperature")
-                        Spacer()
-                        Slider(value: Binding(
-                            get: { viewModel.config.temperature },
-                            set: { viewModel.updateTemperature($0) }
-                        ), in: 0...1)
+                Picker("Model", selection: Binding(
+                    get: { viewModel.config.modelName },
+                    set: { viewModel.selectModel($0) }
+                )) {
+                    ForEach(viewModel.availableModels, id: \.self) { model in
+                        Text(model).tag(model)
                     }
                 }
+                .pickerStyle(.menu)
             }
             .navigationTitle("Astra Settings")
         }
