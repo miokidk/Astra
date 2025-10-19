@@ -9,9 +9,14 @@ import SwiftUI
 
 @main
 struct AstraApp: App {
+    @StateObject private var appState = AppState()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AstraBoardApp(appState: appState)
+                .onOpenURL { url in
+                    appState.deepLinkRouter.handle(url: url)
+                }
         }
     }
 }
